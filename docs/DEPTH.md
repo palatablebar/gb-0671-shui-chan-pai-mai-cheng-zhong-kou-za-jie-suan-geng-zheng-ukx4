@@ -13,6 +13,7 @@
 | M5 更正裁决 | 查看并执行更正裁决 | `POST /api/correction` | `app/modules/correction/rules.py` | `tests/test_correction.py` |
 | M6 应付对账 | 查看并执行应付对账 | `POST /api/reconcile` | `app/modules/reconcile/rules.py` | `tests/test_reconcile.py` |
 | M7 结算归档 | 查看并执行结算归档 | `POST /api/archive` | `app/modules/archive/rules.py` | `tests/test_archive.py` |
+| M8 证据发布 | 查看核对结果并发布脱敏证据包 | `POST /api/evidence`、`POST /api/runs/{run_id}/publish` | `app/modules/evidence/rules.py`、`app/publisher.py` | `tests/test_evidence.py` |
 
 ## 陷阱登记
 
@@ -34,6 +35,10 @@
 ## 对账规则
 
 输入=采纳原始行+隔离行+空行+同值重复行+重复表头。计价版本总额与生效票总额分别展示，避免把更正前后重复求和。最终应付=已付+待付，负待付为退款。
+
+## 证据发布规则
+
+抽样=全部更正票+按批号哈希抽取约四分之一，保底3票、上限10票，同批重跑抽样不变。三道闸门任一不过即不出包：证件尾号(4位数字)与联系电话(1开头11位)须与船户档案一一稳定对应；抽样票各版本依据行须在采信原始行中找到；封存摘要重算、生效版本与归档链顶、归档状态三者须一致。包为确定性zip（固定时间戳、排序条目），内容哈希即包号；发布事务内作废旧版写入新版，中断回滚，旧版保持当前版。
 
 ## 已知不覆盖
 

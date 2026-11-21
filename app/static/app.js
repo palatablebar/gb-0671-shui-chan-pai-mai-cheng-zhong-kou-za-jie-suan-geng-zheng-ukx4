@@ -7,6 +7,15 @@ document.querySelector('#filter').addEventListener('input',event=>{const text=ev
 const review=document.querySelector('#review');if(review)review.addEventListener('click',async()=>{try{const run=await fetch('/api/runs/'+review.dataset.id).then(r=>r.json());const result=await request('/api/runs/'+review.dataset.id+'/review',{revision:run.revision});feedback.textContent=result.status;}catch(error){feedback.textContent=error.message;}});
 const selected=new URL(location.href).searchParams.get('dataset');if(selected)document.querySelector('#dataset').value=selected;
 
+const publishBtn=document.querySelector('#publish');
+const packagesList=document.querySelector('#packages');
+if(packagesList){
+ const runId=document.body.dataset.runId;
+ const loadPackages=async()=>{try{const data=await fetch('/api/runs/'+runId+'/packages').then(r=>r.json());packagesList.innerHTML=data.length?data.map(p=>`<li>v${p.seq} · ${p.status} · ${p.created_at.slice(0,19).replace('T',' ')} · <a href="/api/packages/${p.id}">下载</a></li>`).join(''):'<li>尚未发布</li>';}catch(e){packagesList.innerHTML='<li>清单加载失败</li>';}};
+ loadPackages();
+ if(publishBtn)publishBtn.addEventListener('click',async()=>{publishBtn.disabled=true;try{const result=await request('/api/runs/'+runId+'/publish',{});feedback.textContent=result.reused?`证据包 v${result.seq} 已存在，复用未新增`:`证据包 v${result.seq} 已发布`;await loadPackages();}catch(error){feedback.textContent=error.message;}finally{publishBtn.disabled=false;}});
+}
+
 const filePicker=document.querySelector('#csv-file');
 if(filePicker){
  const editor=document.querySelector('#csv-text');

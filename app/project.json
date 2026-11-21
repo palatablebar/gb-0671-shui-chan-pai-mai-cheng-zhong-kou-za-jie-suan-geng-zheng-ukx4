@@ -10,7 +10,8 @@
     "扣杂竞价",
     "更正裁决",
     "应付对账",
-    "结算归档"
+    "结算归档",
+    "证据发布"
   ],
   "rule": "双次称重先配对，再按品类扣杂；更正只能替代指定版本，禁止重复支付",
   "lane": "L1",
@@ -29,7 +30,8 @@
     "auction",
     "correction",
     "reconcile",
-    "archive"
+    "archive",
+    "evidence"
   ],
   "labels": {
     "id": "记录号",
@@ -63,6 +65,18 @@
     "repeated_header": "重复表头",
     "row_balanced": "行守恒",
     "money_balanced": "金额守恒",
-    "blocked": "阻断项"
+    "blocked": "阻断项",
+    "owner": "船户",
+    "owner_ref": "船户化名",
+    "id_tail": "证件尾号",
+    "phone": "联系电话",
+    "address": "隔离地址",
+    "field": "遮盖字段",
+    "fingerprint": "指纹",
+    "ok": "核对通过",
+    "reason": "原因",
+    "title": "核对项",
+    "adopted": "采用",
+    "versions": "版本链"
   }
 }

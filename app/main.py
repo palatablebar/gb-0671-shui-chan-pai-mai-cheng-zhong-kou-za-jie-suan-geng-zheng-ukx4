@@ -7,6 +7,7 @@ from app.config import ROOT, META, MODULES, DB_PATH
 from app.errors import BusinessError
 from app.engine import evaluate
 from app import store
+from app import publisher
 from app.archive import serialize
 
 @asynccontextmanager
@@ -48,5 +49,15 @@ def review(run_id:str,payload:dict=Body(...)):
 def export(run_id:str):
     result=store.get(DB_PATH,run_id)
     return Response(serialize(result),media_type='application/zip',headers={'Content-Disposition':f'attachment; filename="{run_id}.zip"'})
+@app.post('/api/runs/{run_id}/publish')
+def publish(run_id:str):
+    return publisher.publish(DB_PATH,run_id)
+@app.get('/api/runs/{run_id}/packages')
+def run_packages(run_id:str):
+    return publisher.packages(DB_PATH,run_id)
+@app.get('/api/packages/{package_id}')
+def package_download(package_id:str):
+    data=publisher.package_bytes(DB_PATH,package_id)
+    return Response(data['zip'],media_type='application/zip',headers={'Content-Disposition':f'attachment; filename="evidence-{data["run_id"]}-v{data["seq"]}.zip"'})
 for key in MODULES:
     app.include_router(import_module(f'app.modules.{key}.handler').router)

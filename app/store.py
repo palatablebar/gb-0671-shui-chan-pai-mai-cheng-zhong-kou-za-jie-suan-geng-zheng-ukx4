@@ -8,6 +8,7 @@ def connect(path):
     con.row_factory=sqlite3.Row
     con.execute('PRAGMA journal_mode=WAL')
     con.execute("CREATE TABLE IF NOT EXISTS runs (id TEXT PRIMARY KEY, digest TEXT UNIQUE NOT NULL, result TEXT NOT NULL, revision INTEGER NOT NULL DEFAULT 1, status TEXT NOT NULL DEFAULT '待复核')")
+    con.execute("CREATE TABLE IF NOT EXISTS packages (id TEXT PRIMARY KEY, run_id TEXT NOT NULL, digest TEXT UNIQUE NOT NULL, seq INTEGER NOT NULL, status TEXT NOT NULL DEFAULT 'current', zip BLOB NOT NULL, manifest TEXT NOT NULL, created_at TEXT NOT NULL)")
     return con
 
 def save(path, result):

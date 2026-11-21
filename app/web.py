@@ -8,9 +8,12 @@ templates=Jinja2Templates(directory=str(ROOT/'app/templates'))
 
 def render(request:Request,key):
     from app.main import DB_PATH
+    from app.errors import BusinessError
     run_id=request.query_params.get('run_id')
     if run_id:
         state=store.get(DB_PATH,run_id)
     else:
         state=store.save(DB_PATH,evaluate({'dataset':request.query_params.get('dataset','dirty')}))
+    if key not in state['views']:
+        raise BusinessError('VIEW_MISSING','该批次缺少此视图，请重跑后再试')
     return templates.TemplateResponse(request=request,name=f'{key}.html',context={'meta':META,'key':key,'state':state,'view':state['views'][key]})

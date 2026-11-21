@@ -6,8 +6,9 @@ from app.config import ROOT, MODULES, MAX_BYTES
 from app.errors import BusinessError
 from app.manifest import digest, make_manifest
 
-def evaluate(payload=None, until=7, snapshot=None):
+def evaluate(payload=None, until=None, snapshot=None):
     payload=payload or {}
+    until=until or len(MODULES)
     dataset=payload.get('dataset','dirty')
     if dataset not in {'dirty','clean','legacy'}: raise BusinessError('BAD_DATASET','样例名称无效')
     if not isinstance(payload.get('overrides',{}),dict): raise BusinessError('BAD_CONTEXT','参数须为对象')
@@ -16,11 +17,12 @@ def evaluate(payload=None, until=7, snapshot=None):
     context=deepcopy(snapshot['context']) if snapshot is not None else json.loads((ROOT/'sample_data/context.json').read_text())
     context.update(deepcopy(payload.get('overrides',{})))
     start=time.perf_counter()
-    state={'raw_bytes':raw,'context':context,'records':[],'quarantine':[], 'counts':{},'views':{},'source':dataset}
+    source_digest=digest(raw,context)
+    state={'raw_bytes':raw,'context':context,'records':[],'quarantine':[], 'counts':{},'views':{},'source':dataset,'source_digest':source_digest}
     for index,key in enumerate(MODULES,1):
         if index>until: break
         import_module(f'app.modules.{key}.rules').apply(state)
     state['input_snapshot']={'bytes_b64':base64.b64encode(raw).decode(),'context':deepcopy(context)}
     state.pop('raw_bytes',None)
-    state['manifest']=make_manifest(digest(raw,context),dataset,time.perf_counter()-start)
+    state['manifest']=make_manifest(source_digest,dataset,time.perf_counter()-start)
     return state
